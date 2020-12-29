@@ -3,7 +3,6 @@ var inquirer = require("inquirer");
 //Request the connection.js to start connection to the database
 const connection = require("./connection.js");
 
-
 //function to start the inquirer and display the questions menu
 function init() {
     inquirer
@@ -47,8 +46,58 @@ function init() {
   
 init()
 
+
+//=============================================VIEWING=============================================
+//Function View to view department, role and employee choices. This function call specific views functions
+function view() {
+    inquirer
+        .prompt({
+            name: "actionView",
+            type: "list",
+            message: "Select what you would like to view?",
+            choices: [
+                "View department",
+                "View role",
+                "View employee",
+                "View employee by manager"
+            ]
+        })
+        .then(function(answer) {
+            switch (answer.actionView) {
+                case "View department":
+                viewDepartment();
+                break;
+        
+                case "View role":
+                viewRole();
+                break;
+        
+                case "View employee":
+                viewEmployee();
+                break;
+
+                case "View employee by manager":
+                viewEmployeeByManager();
+                break;
+            }
+        });
+}
+
+//Function to display Employees on the console
+function viewEmployee() {
+    var querySelect = "SELECT employee.id, first_name, last_name, title, salary, name, manager_id FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id";
+
+    connection.query(querySelect, function(err, res) {
+        if (err) throw err;
+        console.table(res)
+        init()
+    });
+
+}
+
+
 //=============================================ADDING=============================================
-//Function Add to display department, role and employee choices and call specific add functions
+//Function Add to add department, role and employee choices. This function call specific add functions
 function add() {
     inquirer
         .prompt({
