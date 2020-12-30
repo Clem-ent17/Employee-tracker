@@ -269,30 +269,109 @@ function update() {
         });
 }
 
-//Function to display Department on the console
-function updateRole() {
-        const queryString = "SELECT id FROM role WHERE title = ?";
-            connection.query(queryString, newRole, function(err, result) {
-                if (err) {
-                    return reject(err);
-                }
-                const newRoleId = result[0].id;
-                const queryString = "UPDATE employee SET ? WHERE ?";
-                connection.query(queryString,
-                    [{
-                        role_id: newRoleId
-                    },
-                    {
-                        id: empId
-                    }],
-                    function(err, result) {
-                        if (err) {
-                            return reject(err);
-                        }
-                        console.log("Employee's role updated!");
-                        return resolve();
-                    });
+//Function to update a department data
+function updateDepartment() {
+    inquirer
+        .prompt([
+            {
+                name: "departmentId",
+                type: "input",
+                message: "What is the department ID?"
+            },
+            {
+                name: "name",
+                type: "input",
+                message: "What is the new department name?"
+            }
+        ])
+        .then(function(answer) {
+            const query = "UPDATE department SET name = ? WHERE id = ?";
+
+            connection.query(query, [answer.name, Number(answer.departmentId)], function(err, res) {
+                if (err) throw err;
+                console.log("Department updated!")
+                console.table(answer)
+                init()
             });
+        });
+}
+
+//Function to a role data
+function updateRole() {
+    inquirer
+        .prompt([
+            {
+                name: "roleId",
+                type: "input",
+                message: "What is the role ID?"
+            },
+            {
+                name: "title",
+                type: "input",
+                message: "What is the new role title?"
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "What is the new role salary?"
+            },
+            {
+                name: "departmentId",
+                type: "input",
+                message: "What is the new department ID for this role?"
+            }
+        ])
+        .then(function(answer) {
+            const query = "UPDATE role SET title = ?, salary = ?, department_id = ? WHERE id = ?";
+
+            connection.query(query, [answer.title, Number(answer.salary), Number(answer.departmentId), Number(answer.roleId)], function(err, res) {
+                if (err) throw err;
+                console.log("Role updated!")
+                console.table(answer)
+                init()
+            });
+        });
+}
+
+function updateEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: "employeeId",
+                type: "input",
+                message: "What is the employee ID?"
+            },
+            {
+                name: "firstName",
+                type: "input",
+                message: "What is the employee first name?"
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "What is the employee last name?"
+            },
+            {
+                name: "roleId",
+                type: "input",
+                message: "What is the employee role ID?"
+            },
+            {
+                name: "managerId",
+                type: "input",
+                message: "What is the employee manager ID?"
+            }
+        ])
+        .then(function(answer) {
+            const query = "UPDATE employee SET first_name = ?, last_name = ?, role_id = ?, manager_id = ? WHERE id = ?";
+
+            connection.query(query, [answer.firstName, answer.lastName, Number(answer.roleId), Number(answer.managerId), Number(answer.employeeId)], function(err, res) {
+                if (err) throw err;
+                console.log("Employee updated!")
+                console.table(answer)
+                init()
+            });
+        });
 }
 
 
