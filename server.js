@@ -14,7 +14,7 @@ function init() {
             "View departments, roles, employees",
             "Add departments, roles, employees",
             "Update employee roles",
-            "Delete departments, roles, and employees",
+            "Remove departments, roles, and employees",
             "Exit"
             ]
         })
@@ -58,8 +58,7 @@ function view() {
             choices: [
                 "View department",
                 "View role",
-                "View employee",
-                "View employee by manager"
+                "View employee"
             ]
         })
         .then(function(answer) {
@@ -75,24 +74,41 @@ function view() {
                 case "View employee":
                 viewEmployee();
                 break;
-
-                case "View employee by manager":
-                viewEmployeeByManager();
-                break;
             }
         });
 }
 
-//Function to display Employees on the console
-function viewEmployee() {
-    var querySelect = "SELECT employee.id, first_name, last_name, title, salary, name, manager_id FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id";
+//Function to display Department on the console
+function viewDepartment() {
+    const querySelect = "SELECT * FROM department";
 
     connection.query(querySelect, function(err, res) {
         if (err) throw err;
         console.table(res)
         init()
     });
+}
 
+//Function to display Roles on the console
+function viewRole() {
+    const querySelect = "SELECT role.id, title, salary, name FROM role LEFT JOIN department ON role.department_id = department.id";
+
+    connection.query(querySelect, function(err, res) {
+        if (err) throw err;
+        console.table(res)
+        init()
+    });
+}
+
+//Function to display Employees on the console
+function viewEmployee() {
+    const querySelect = "SELECT employee.id, first_name, last_name, title, salary, name, manager_id FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id";
+
+    connection.query(querySelect, function(err, res) {
+        if (err) throw err;
+        console.table(res)
+        init()
+    });
 }
 
 
@@ -139,7 +155,8 @@ function addDepartment() {
         ])
         //Then insert information added, to the table
         .then(function (answer) {
-            var query = "INSERT INTO department (name) VALUES (?)";
+            const query = "INSERT INTO department (name) VALUES (?)";
+
             connection.query(query, answer.departmentName, function(err, res) {
                 if (err) throw err;
                 console.log("Department added!")
@@ -171,7 +188,8 @@ function addRole() {
         ])
         //Then insert information added, to the table
         .then(function (answer) {
-            var query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+            const query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+
             connection.query(query, [answer.title, Number(answer.salary), Number(answer.departmentId)], function(err, res) {
                 if (err) throw err;
                 console.log("Role added!")
@@ -208,7 +226,8 @@ function addEmployee() {
         ])
         //Then insert information added, to the table
         .then(function (answer) {
-            var query = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+            const query = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+
             connection.query(query, [answer.firstName, answer.lastName, Number(answer.roleId), Number(answer.managerId)], function(err, res) {
                 if (err) throw err;
                 console.log("Employee added!")
@@ -216,4 +235,154 @@ function addEmployee() {
                 init()
             });
         })
+}
+
+
+//=============================================UPDATING=============================================
+//Function Update to update department, role and employee input. This function call specific updates functions
+function update() {
+    inquirer
+        .prompt({
+            name: "actionUpdate",
+            type: "list",
+            message: "Select what you would like to update?",
+            choices: [
+                "Update department",
+                "Update role",
+                "Update employee"
+            ]
+        })
+        .then(function(answer) {
+            switch (answer.actionUpdate) {
+                case "Update department":
+                updateDepartment();
+                break;
+        
+                case "Update role":
+                updateRole();
+                break;
+        
+                case "Update employee":
+                updateEmployee();
+                break;
+            }
+        });
+}
+
+//Function to display Department on the console
+function updateRole() {
+        const queryString = "SELECT id FROM role WHERE title = ?";
+            connection.query(queryString, newRole, function(err, result) {
+                if (err) {
+                    return reject(err);
+                }
+                const newRoleId = result[0].id;
+                const queryString = "UPDATE employee SET ? WHERE ?";
+                connection.query(queryString,
+                    [{
+                        role_id: newRoleId
+                    },
+                    {
+                        id: empId
+                    }],
+                    function(err, result) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        console.log("Employee's role updated!");
+                        return resolve();
+                    });
+            });
+}
+
+
+//=============================================DELETING=============================================
+//Function Remove to delete department, role and employee input. This function call specific removes functions
+function remove() {
+    inquirer
+        .prompt({
+            name: "actionRemove",
+            type: "list",
+            message: "Select what you would like to remove?",
+            choices: [
+                "Remove department",
+                "Remove role",
+                "Remove employee"
+            ]
+        })
+        .then(function(answer) {
+            switch (answer.actionRemove) {
+                case "Remove department":
+                removeDepartment();
+                break;
+        
+                case "Remove role":
+                removeRole();
+                break;
+        
+                case "Remove employee":
+                removeEmployee();
+                break;
+            }
+        });
+}
+
+//Function to remove a Department on the table
+function removeDepartment() {
+    inquirer
+        .prompt({
+            name: "removeDepartmentId",
+            type: "input",
+            message: "Enter the department ID you would like to delete?"
+        })
+        .then(function(answer) {
+            const query = "DELETE FROM department WHERE id=?";
+
+            connection.query(query, Number(answer.removeDepartmentId), function(err, res) {
+                if (err) throw err;
+                console.log("Department deleted!")
+                console.table(answer)
+                init()
+            });
+        });
+}
+
+//Function to remove a Role on the table
+function removeRole() {
+    inquirer
+        .prompt({
+            name: "removeRoleId",
+            type: "input",
+            message: "Enter the role ID you would like to delete?"
+        })
+        .then(function(answer) {
+            const query = "DELETE FROM role WHERE id=?";
+
+            connection.query(query, Number(answer.removeRoleId), function(err, res) {
+                if (err) throw err;
+                console.log("Role deleted!")
+                console.table(answer)
+                init()
+            });
+        });
+}
+
+//Function to remove an Employee on the table
+function removeEmployee() {
+    inquirer
+        .prompt({
+            name: "removeEmployeeId",
+            type: "input",
+            message: "Enter the employee ID you would like to remove?"
+        })
+        .then(function(answer) {
+            const query = "DELETE FROM employee WHERE id=?";
+
+            connection.query(query, Number(answer.removeEmployeeId), function(err, res) {
+                if (err) throw err;
+                console.log("Employee deleted!")
+                console.table(answer)
+                init()
+            });
+        });
 }
