@@ -11,33 +11,33 @@ function init() {
             type: "list",
             message: "What would you like to do?",
             choices: [
-            "View departments, roles, employees",
-            "Add departments, roles, employees",
-            "Update employee roles",
-            "Remove departments, roles, and employees",
+            "View departments, roles, or employees",
+            "Add departments, roles, or employees",
+            "Update departments, roles, or employees",
+            "Remove departments, roles, or employees",
             "Exit"
             ]
         })
         //Calling the main functions to view, add, update or remove element of the tables
         .then(function(answer) {
             switch (answer.action) {
-                case "View departments, roles, employees":
+                case "View departments, roles, or employees":
                 view();
                 break;
         
-                case "Add departments, roles, employees":
+                case "Add departments, roles, or employees":
                 add();
                 break;
         
-                case "Update employee roles":
+                case "Update departments, roles, or employees":
                 update();
                 break;
         
-                case "Remove departments, roles, and employees":
+                case "Remove departments, roles, or employees":
                 remove();
                 break;
         
-                case "exit":
+                case "Exit":
                 connection.end();
                 break;
             }
@@ -58,7 +58,9 @@ function view() {
             choices: [
                 "View department",
                 "View role",
-                "View employee"
+                "View employee",
+                "View employee by Manager",
+                "Back"
             ]
         })
         .then(function(answer) {
@@ -73,6 +75,14 @@ function view() {
         
                 case "View employee":
                 viewEmployee();
+                break;
+
+                case "View employee by Manager":
+                viewEmployeeManager();
+                break;
+
+                case "Back":
+                init();
                 break;
             }
         });
@@ -111,6 +121,27 @@ function viewEmployee() {
     });
 }
 
+//Function to display Employees on the console by manager
+function viewEmployeeManager() {
+    inquirer
+        .prompt([
+            {
+                name: "managerId",
+                type: "input",
+                message: "What is the manager ID?"
+            }
+        ])
+        .then(function(answer) {
+            const query = "SELECT employee.id, first_name, last_name, title, salary, name, manager_id FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE manager_id = ?";
+
+            connection.query(query, Number(answer.managerId), function(err, res) {
+                if (err) throw err;
+                console.table(res)
+                init()
+            });
+        });
+}
+
 
 //=============================================ADDING=============================================
 //Function Add to add department, role and employee choices. This function call specific add functions
@@ -124,6 +155,7 @@ function add() {
                 "Add department",
                 "Add role",
                 "Add employee",
+                "Back"
             ]
         })
         .then(function(answer) {
@@ -138,6 +170,10 @@ function add() {
         
                 case "Add employee":
                 addEmployee();
+                break;
+
+                case "Back":
+                init();
                 break;
             }
         });
@@ -249,7 +285,8 @@ function update() {
             choices: [
                 "Update department",
                 "Update role",
-                "Update employee"
+                "Update employee",
+                "Back"
             ]
         })
         .then(function(answer) {
@@ -264,6 +301,10 @@ function update() {
         
                 case "Update employee":
                 updateEmployee();
+                break;
+
+                case "Back":
+                init();
                 break;
             }
         });
@@ -296,7 +337,7 @@ function updateDepartment() {
         });
 }
 
-//Function to a role data
+//Function to update a role data
 function updateRole() {
     inquirer
         .prompt([
@@ -333,6 +374,7 @@ function updateRole() {
         });
 }
 
+//Function to update an employee information
 function updateEmployee() {
     inquirer
         .prompt([
@@ -386,7 +428,8 @@ function remove() {
             choices: [
                 "Remove department",
                 "Remove role",
-                "Remove employee"
+                "Remove employee",
+                "Back"
             ]
         })
         .then(function(answer) {
@@ -401,6 +444,10 @@ function remove() {
         
                 case "Remove employee":
                 removeEmployee();
+                break;
+
+                case "Back":
+                init();
                 break;
             }
         });
@@ -465,3 +512,28 @@ function removeEmployee() {
             });
         });
 }
+
+
+//=============================================BUDGET=============================================
+//Function to display the remaining budget
+// function budget() {
+//     viewDepartment()
+
+//     inquirer
+//         .prompt([
+//             {
+//                 name: "departementId",
+//                 type: "input",
+//                 message: "What is the manager ID?"
+//             }
+//         ])
+//         .then(function(answer) {
+//             const query = "SELECT employee.id, first_name, last_name, title, salary, name, manager_id FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE manager_id = ?";
+
+//             connection.query(query, Number(answer.managerId), function(err, res) {
+//                 if (err) throw err;
+//                 console.table(res)
+//                 init()
+//             });
+//         });
+// }
