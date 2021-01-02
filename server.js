@@ -15,6 +15,7 @@ function init() {
             "Add departments, roles, or employees",
             "Update departments, roles, or employees",
             "Remove departments, roles, or employees",
+            "Vizualize budget",
             "Exit"
             ]
         })
@@ -35,6 +36,10 @@ function init() {
         
                 case "Remove departments, roles, or employees":
                 remove();
+                break;
+                
+                case "Vizualize budget":
+                budget();
                 break;
         
                 case "Exit":
@@ -311,7 +316,7 @@ function update() {
 }
 
 //Function to update a department data
-function updateDepartment() {
+function updateDepartment() { 
     inquirer
         .prompt([
             {
@@ -362,7 +367,7 @@ function updateRole() {
                 message: "What is the new department ID for this role?"
             }
         ])
-        .then(function(answer) {
+        .then(function(answer) {            
             const query = "UPDATE role SET title = ?, salary = ?, department_id = ? WHERE id = ?";
 
             connection.query(query, [answer.title, Number(answer.salary), Number(answer.departmentId), Number(answer.roleId)], function(err, res) {
@@ -516,24 +521,44 @@ function removeEmployee() {
 
 //=============================================BUDGET=============================================
 //Function to display the remaining budget
-// function budget() {
-//     viewDepartment()
+function budget() {
+    inquirer
+        .prompt([
+            {
+                name: "departementId",
+                type: "input",
+                message: "What is the department ID?"
+            },
+            {
+                name: "budget",
+                type: "input",
+                message: "What is the budget for this department?"
+            }
+        ])
+        .then(function(answer) {
+            const query = "SELECT * FROM role WHERE department_id = ?";
 
-//     inquirer
-//         .prompt([
-//             {
-//                 name: "departementId",
-//                 type: "input",
-//                 message: "What is the manager ID?"
-//             }
-//         ])
-//         .then(function(answer) {
-//             const query = "SELECT employee.id, first_name, last_name, title, salary, name, manager_id FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id WHERE manager_id = ?";
+            connection.query(query, Number(answer.departementId), function(err, res) {
+                if (err) throw err;
+                
+                let utilizedBudget = 0;
+                let totalBudget = Number(answer.budget);
 
-//             connection.query(query, Number(answer.managerId), function(err, res) {
-//                 if (err) throw err;
-//                 console.table(res)
-//                 init()
-//             });
-//         });
-// }
+                // For loop to calculate add the salary for a department
+                for (let i = 0; i < res.length; i++) {
+                    const roleId = res[i].id;
+                    const salary = res[i].salary;
+
+                    const query2 = "SELECT * FROM employee WHERE role_id = ?";
+                    connection.query(query2, roleId, function(err, data) {
+                        if (err) throw err;
+                        utilizedBudget += data.length * salary;
+                        if (i === res.length-1) {
+                            console.log("Total department utilized budget: ", Number(totalBudget - utilizedBudget));
+                        }
+                    });
+                }
+            });
+            init()
+        });
+}
