@@ -8,6 +8,9 @@ MySQL: Employee Tracker
 GitHub repository: 
 https://github.com/Clem-ent17/Employee-tracker
 
+Demonstration video of the App:
+https://drive.google.com/file/d/149yJe75-LKgRa6YWbgEwROuAD7GgdSLz/view
+
 
 ## User story:
 
