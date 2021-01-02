@@ -118,7 +118,7 @@ The database schema containing three tables:
 
 ## Project status:
 
-* When deleted, the note doesn't refresh on the browser, without hitting reload.
+* I wasn't able to display the information (departments, roles, employees) in a select menu in the node.
 
 - - -
 
